@@ -29,6 +29,14 @@ buf_size = MAX_BUF;
 buf = (char *)malloc(buf_size);
 }
 
+void end(void)
+{
+    if (buf != NULL)
+    {
+        free(buf);
+        buf = NULL;  // Set to NULL to avoid dangling pointers
+    }
+}
 
 void make_table(void) //generates the CRC-16 lookup table
 {
