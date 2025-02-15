@@ -216,7 +216,7 @@ int main (argc,argv)
                 }
 
                 if (AppendMode) { fprintf(protfile, "\n******************************************\n\n"); }
-                fprintf(protfile, "CHECK (v1.1) with File from %s\n-----------------------------------------------\n",
+                fprintf(protfile, "CHECK (v1.0) with File from %s\n-----------------------------------------------\n",
                         dateString);
 
                 checkcrc(infile, protfile);
