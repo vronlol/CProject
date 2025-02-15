@@ -21,7 +21,7 @@ void end(void);
 
 long	fCount;
 int		MaxLevel;
-int		tMode,verbose,AppMode, CreateMode;
+int		tMode,verbose,AppendMode, CreateMode;
 int		aError,cError,dError,tError,gFiles,uError;
 int		SubMode,RMode;
 long		fCount;
@@ -52,7 +52,7 @@ int main (argc,argv)
 
     tMode = FALSE;
     verbose = FALSE;
-    AppMode = FALSE;
+    AppendMode = FALSE;
     strcpy(inname, "00lcrc16.crc");
     strcpy(protname, "");
     fCount = 0;
@@ -82,52 +82,52 @@ int main (argc,argv)
     for (i = 1; i < argc; i++) // define options
     {
         if (*(argv[i]) == '-' || *(argv[i]) == '/') {
-            if (DoDebug) { fprintf(stderr, "Option '%s' gefunden\n", argv[i]); }
+            if (DoDebug) { fprintf(stderr, "found option '%s'\n", argv[i]); }
             pt = (argv[i] + 1);
 
             if (tolower(*pt) == 'q') {
                 CreateMode = TRUE;
-                if (DoDebug) { printf("Option 'CreateMode' gesetzt\n"); }
+                if (DoDebug) { printf("set option 'CreateMode'\n"); }
             }
 
             if (tolower(*pt) == 's') {
                 SubMode = TRUE;
-                if (DoDebug) { printf("Option 'SubDir' gesetzt\n"); }
+                if (DoDebug) { printf("set option 'SubDir'\n"); }
             }
 
             if (tolower(*pt) == 'r') {
                 RMode = TRUE;
-                if (DoDebug) { printf("Option 'RMode' gesetzt\n"); }
+                if (DoDebug) { printf("set option 'RMode'\n"); }
             }
 
             if (tolower(*pt) == 't') {
                 tMode = TRUE;
-                if (DoDebug) { fprintf(stderr, "Option 'Time-Mode' gesetzt\n"); }
+                if (DoDebug) { fprintf(stderr, "set option 'Time-Mode'\n"); }
             }
 
             if (tolower(*pt) == 'a') {
-                AppMode = TRUE;
-                if (DoDebug) { fprintf(stderr, "Option 'AppMode' gesetzt\n"); }
+                AppendMode = TRUE;
+                if (DoDebug) { fprintf(stderr, "set option 'AppendMode'\n"); }
             }
 
             if (tolower(*pt) == 'v') {
                 verbose = TRUE;
-                if (DoDebug) { fprintf(stderr, "Option 'Verbose' gesetzt\n"); }
+                if (DoDebug) { fprintf(stderr, "set option 'Verbose'\n"); }
             } else if (tolower(*pt) == 'p') {
                 pt = pt + 1;
                 strcpy(protname, pt);
                 if (strlen(protname) < 1) { strcpy(protname, "00lcrc16.log"); }
-                if (DoDebug) { fprintf(stderr, "Option 'Prot-File=%s' gesetzt\n", protname); }
+                if (DoDebug) { fprintf(stderr, "set option 'Prot-File=%s'\n", protname); }
             } else if (tolower(*pt) == 'c') {
                 pt = pt + 1;
                 strcpy(inname, pt);
-                if (DoDebug) { fprintf(stderr, "Option 'CRC-File=%s' gefunden\n", pt); }
+                if (DoDebug) { fprintf(stderr, "found option 'CRC-File=%s'\n", pt); }
             } else if (tolower(*pt) == 'h' || tolower(*pt) == '?') {
                 fprintf(stderr, "Usage: checksum [options]\n");
                 fprintf(stderr, "       -p[XYZ]  Creates Protocol-File XYZ\n");
-                fprintf(stderr, "       -a       Appendmode for Protocol-File\n");
+                fprintf(stderr, "       -a       AppendMode for Protocol-File\n");
                 fprintf(stderr, "       -cXYZ    Checks with File XYZ instead of 00lcrc16.crc\n");
-                fprintf(stderr, "       -t       Tests for Modification-Tome also\n");
+                fprintf(stderr, "       -t       Tests for Modification-Time also\n");
                 fprintf(stderr, "       -v       Verbose\n");
                 fprintf(stderr, "       -q       Creates Checksum\n");
                 fprintf(stderr, "       Usage: -q [options]\n");
@@ -142,7 +142,7 @@ int main (argc,argv)
 
 
     if (CreateMode) {
-        if (AppMode)
+        if (AppendMode)
         { outfile = fopen (outname,"a+"); }
         else
         { outfile = fopen (outname,"w+"); }
@@ -162,7 +162,7 @@ int main (argc,argv)
                         getcwd (newPath,255);
                         if (strcmp(oldPath,newPath)==0)
                         {
-                            fprintf (stderr,"\nFEHLER: Verzeichnis %s nicht gefunden\n",pt);
+                            fprintf (stderr,"\nERROR: Couldn't find directory %s\n",pt);
                         }
                         else
                         {
@@ -192,15 +192,15 @@ int main (argc,argv)
             }
             fclose (outfile);
             if (MaxMode>0)
-            { fprintf (stderr,"%ld Dateien, %.2lf MBytes\n\n",fCount,((double)(lenCount) / 1024.0)); }
+            { fprintf (stderr,"%ld Files, %.2lf MBytes\n\n",fCount,((double)(lenCount) / 1024.0)); }
             else
-            { fprintf (stderr,"%ld Dateien, %.2lf MBytes\n\n",fCount,((double)(lenCount / 1024) / 1024.0)); }
+            { fprintf (stderr,"%ld Files, %.2lf MBytes\n\n",fCount,((double)(lenCount / 1024) / 1024.0)); }
         }
     } else { //reads file, processes its checksum, logs results. checks for errors, modified/deleted files, outputs a summary report
         infile = fopen(inname, "r");
         if (infile != NULL) {
             if (strlen(protname) > 0) {
-                if (AppMode) { protfile = fopen(protname, "a+"); }
+                if (AppendMode) { protfile = fopen(protname, "a+"); }
                 else { protfile = fopen(protname, "w+"); }
             } else { protfile = stdout; }
             if (protfile != NULL) {
@@ -215,8 +215,8 @@ int main (argc,argv)
                             writetime->tm_hour, writetime->tm_min, writetime->tm_sec);
                 }
 
-                if (AppMode) { fprintf(protfile, "\n******************************************\n\n"); }
-                fprintf(protfile, "CHECK (v1.1) mit Datei vom %s\n-----------------------------------------------\n",
+                if (AppendMode) { fprintf(protfile, "\n******************************************\n\n"); }
+                fprintf(protfile, "CHECK (v1.1) with File from %s\n-----------------------------------------------\n",
                         dateString);
 
                 checkcrc(infile, protfile);
@@ -226,15 +226,15 @@ int main (argc,argv)
 
                 fprintf(protfile, "-----------------------------------------------\n");
                 if (aError > 0) {
-                    fprintf(protfile, "Allgemeine Fehler:   %5d\n", aError);
+                    fprintf(protfile, "General Errors:   %5d\n", aError);
                 }
-                fprintf(protfile, "Veraenderte Dateien: %5d\n", cError);
-                fprintf(protfile, "Geloeschte Dateien:  %5d\n", dError);
+                fprintf(protfile, "Changed Files:    %5d\n", cError);
+                fprintf(protfile, "Deleted Files:    %5d\n", dError);
                 if (tError > 0) {
-                    fprintf(protfile, "Timestamp-Fehler:    %5d\n", tError);
+                    fprintf(protfile, "Timestamp-Errors: %5d\n", tError);
                 }
-                fprintf(protfile, "Nicht pruefbar:      %5d\n", uError);
-                fprintf(protfile, "\nKorrekte Dateien:    %5d\n", gFiles);
+                fprintf(protfile, "Cannot Check:     %5d\n", uError);
+                fprintf(protfile, "\nCorrect Files:    %5d\n", gFiles);
                 fprintf(protfile, "===============================================\n");
 
 
@@ -242,15 +242,15 @@ int main (argc,argv)
                     fclose(protfile);
                     fprintf(stdout, "-----------------------------------------------\n");
                     if (aError > 0) {
-                        fprintf(stdout, "Allgemeine Fehler:   %5d\n", aError);
+                        fprintf(stdout, "General Errors:   %5d\n", aError);
                     }
-                    fprintf(stdout, "Veraenderte Dateien: %5d\n", cError);
-                    fprintf(stdout, "Geloeschte Dateien:  %5d\n", dError);
+                    fprintf(stdout, "Changed Files:    %5d\n", cError);
+                    fprintf(stdout, "Deleted Files:    %5d\n", dError);
                     if (tError > 0) {
-                        fprintf(stdout, "Timestamp-Fehler:    %5d\n", tError);
+                        fprintf(stdout, "Timestamp-Errors: %5d\n", tError);
                     }
-                    fprintf(stdout, "Nicht pruefbar:      %5d\n", uError);
-                    fprintf(stdout, "\nKorrekte Dateien:    %5d\n", gFiles);
+                    fprintf(stdout, "Cannot Check:     %5d\n", uError);
+                    fprintf(stdout, "\nCorrect Files:    %5d\n", gFiles);
                     fprintf(stdout, "===============================================\n");
                 }
             }
@@ -258,7 +258,7 @@ int main (argc,argv)
             if (dError > 0 || tError > 0 || uError > 0) { retcode = 1; }
             if (cError > 0) { retcode = retcode + 2; }
         } else {
-            fprintf(stderr, "Konnte CRC-Datei '%s' nicht oeffnen!\n", inname);
+            fprintf(stderr, "Couldn't open CRC-File '%s'!\n", inname);
             retcode = 5;
         }
     }
@@ -353,14 +353,14 @@ int checkit (char *inpline, FILE *protfile)
 
             if (istLen!=sollLen)
             {
-                fprintf (protfile,"Geaendert: %s (Len:%ld->%ld)\n",fileName,sollLen,istLen);
+                fprintf (protfile,"Changed: %s (Len:%ld->%ld)\n",fileName,sollLen,istLen);
                 cError++;
             }
             else
             {
                 if (isOK!=0 && sollLen!=0L)
                 {
-                    fprintf (protfile,"Evtl. OK:  %s (CRC konnte nicht geprueft werden)\n",fileName);
+                    fprintf (protfile,"possibly OK:  %s (CRC couldn't be checked)\n",fileName);
                     uError++;
                 }
                 else
@@ -370,12 +370,12 @@ int checkit (char *inpline, FILE *protfile)
                     {
                         if (retcode!=0)
                         {
-                            fprintf (protfile,"Evtl. OK:  %s (CRC %lX konnte jetzt nicht geprueft werden)\n",fileName,sollCRC);
+                            fprintf (protfile,"possibly OK:  %s (CRC %lX could't be checked right now)\n",fileName,sollCRC);
                             uError++;
                         }
                         else
                         {
-                            fprintf (protfile,"Geaendert: %s (CRC:%lX->%lX)\n",fileName,sollCRC,istCRC);
+                            fprintf (protfile,"Changed: %s (CRC:%lX->%lX)\n",fileName,sollCRC,istCRC);
                             cError++;
                         }
                     }
@@ -385,7 +385,7 @@ int checkit (char *inpline, FILE *protfile)
                         {
                             if (strcmp(istDate,sollDate)!=0)
                             {
-                                fprintf (protfile,"Geaendert: %s (Time:%s->%s)\n",fileName,sollDate,istDate);
+                                fprintf (protfile,"Changed: %s (Time:%s->%s)\n",fileName,sollDate,istDate);
                                 tError++;
                             }
                             else
@@ -408,7 +408,7 @@ int checkit (char *inpline, FILE *protfile)
         }
         else
         {
-            fprintf (protfile,"Geloescht: %s\n",fileName);
+            fprintf (protfile,"Deleted: %s\n",fileName);
             dError++;
         }
 
@@ -419,7 +419,7 @@ int checkit (char *inpline, FILE *protfile)
     {
         if (strlen(inpline)>9)
         {
-            fprintf (protfile,"Fehler:   '%s' nicht lesbar\n",inpline);
+            fprintf (protfile,"Error:   '%s' not readable\n",inpline);
             aError++;
         }
     }
@@ -446,7 +446,7 @@ int readdirs (char *dirsname, char *dirlname, FILE *outfile, int count) // recur
     errnum = 0;
     if (count>=MaxLevel)
     {
-        fprintf (outfile,"/FEHLER: Verzeichnis '%s' tiefer als %d Ebenen !!\n",dirlname,MaxLevel);
+        fprintf (outfile,"/ERROR: Directory '%s' deeper than %d levels !!\n",dirlname,MaxLevel);
         errnum=1;
     }
     else
@@ -489,8 +489,8 @@ int readdirs (char *dirsname, char *dirlname, FILE *outfile, int count) // recur
                         getcwd (newPath,255);
                         if (strcmp(oldPath,newPath)==0)
                         {
-                            printf ("/FEHLER: Konnte nicht nach '%s' wechseln\n",fullName);
-                            fprintf (outfile,"/FEHLER: Konnte nicht nach '%s' wechseln\n",fullName);
+                            printf ("/ERROR: Couldn't change to '%s'\n",fullName);
+                            fprintf (outfile,"/ERROR: Couldn't change to '%s'\n",fullName);
                             chdir (oldPath);
                         }
                         else
@@ -654,7 +654,7 @@ int readfiles (char *dirsname, char *dirlname, FILE *outfile) //scans and proces
     }
     else
     {
-        fprintf (stdout,"Fehler: konnte directory nicht Oeffnen\n");
+        fprintf (stdout,"ERROR: couldn't open directory\n");
     }
 /*
 printf ("%-60.60s\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b","");
